@@ -1,0 +1,82 @@
+In this project I will be comparing the reads of a sperm and mature egg transciptome of the Bat starfish (Patiria miniata). 
+
+1. First Launch  an Instance, I will be using Ubuntu 18_04 Devel and Docker size S1.Xlarge 
+   
+2. I set up instance then pasted the IP address into my terminal, 
+      ssh -i $HOME/jetkey kae1019@149.165.171.91
+      
+3. Make sure its updated with the command:
+      sudo apt-get update
+      sudo apt-get upgrade
+      
+4. I Opened a tmuix window and named it FINAL, with the command:
+      tmux new -s FINAL
+      
+5. Install Salmon to be able to map the RNA seq reads with:
+      wget https://github.com/COMBINE-lab/salmon/releases/download/v1.1.0/salmon-1.1.0_linux_x86_64.tar.gz
+      tar xzvf salmon-1.1.0_linux_x86_64.tar.gz
+
+6. Export it to the path with: 
+      export PATH=$PATH:$HOME/salmon-latest_linux_x86_64/bin
+   
+7. Download Tarball with
+      wget http://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/2.10.3/sratoolkit.2.10.3-ubuntu64.tar.gz
+   Unpack it with:
+      tar xzvf sratoolkit.2.10.3-ubuntu64.tar.gz
+   Export it to the path with:
+      export PATH=$PATH:$HOME/sratoolkit.2.10.3-ubuntu64/bin
+      
+8. Configure sra toolkit with:
+      vdb-config --interactive
+    Follow the prompt with s then o then x
+
+9. Download Data, first we will be working with the Sperm data
+     Sperm data: fastq-dump SRR8274999
+     Egg data: fastq-dump SRR8926376
+   
+10 Download an assembly to map to with:
+     wget https://datadryad.org/stash/downloads/file_stream/948 -O brain.fasta
+   
+11. Index the transcriptome with:
+      salmon index --transcripts brain.fasta --index brain_index -k 31
+      
+12. Map the reads to the index with: 
+      salmon quant -p 10 -i brain_index --seqBias --gcBias -l a \
+      -1 SRR8274999.fastq -o SPERM_output
+      
+13. Install R with:
+      sudo apt-get install r-base
+      sudo apt-get install gdebi-core
+
+14. Download R studio with:
+      wget https://download2.rstudio.org/server/trusty/amd64/rstudio-server-1.2.5033-amd64.deb  
+      sudo gdebi rstudio-server-1.2.5033-amd64.deb
+      
+15. Find out the web address of your server with:
+      echo My RStudio Web server is running at: http://$(hostname):8787/
+      
+16. Log into R
+ 
+17. Read data into R with: 
+       exp <- read.table("salmon_output/quant.sf", header = T)
+      
+18.  Subset the first 100 lines of the dataset with:
+       exp2 <- head(exp, 100)
+      
+19. Make a figure 
+       boxplot(exp2$TPM
+     Then add plots and a trend line with:
+      plot(exp2$Length, exp2$TPM)
+      abline(lm(TPM ~ Length, data = exp2), col = "blue")
+     
+20. Save and download data and figures
+      
+20. Now go through the same process for the Egg data. Steps 10-20, with altered out put names.
+
+21. Delete the instance
+
+
+
+
+
+
